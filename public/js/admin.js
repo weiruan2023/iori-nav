@@ -1046,7 +1046,7 @@ function renderConfig(configs) {
     const displayUrl = config.url ? escapeHTML(config.url) : '未提供';
     const normalizedLogo = normalizeUrl(config.logo);
     const descCell = config.desc ? escapeHTML(config.desc) : '暂无描述';
-    const safeCatalog = escapeHTML(config.catelog || '未分类');
+    const safeCatalog = escapeHTML(config.catelog_name || '未分类');
     const cardInitial = (safeName.charAt(0) || '站').toUpperCase();
     
     // Private Icon
@@ -1164,9 +1164,41 @@ function handleEdit(id) {
   if (editModal) editModal.style.display = 'block';
 }
 
+// 删除确认模态框逻辑
+let deleteTargetId = null;
+const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+const closeDeleteConfirmModal = document.getElementById('closeDeleteConfirmModal');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+if (closeDeleteConfirmModal) closeDeleteConfirmModal.onclick = () => deleteConfirmModal.style.display = 'none';
+if (cancelDeleteBtn) cancelDeleteBtn.onclick = () => deleteConfirmModal.style.display = 'none';
+if (deleteConfirmModal) {
+    deleteConfirmModal.onclick = (e) => {
+        if (e.target === deleteConfirmModal) deleteConfirmModal.style.display = 'none';
+    };
+}
+
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.onclick = () => {
+        if (deleteTargetId) {
+            performDelete(deleteTargetId);
+            deleteConfirmModal.style.display = 'none';
+        }
+    };
+}
+
 function handleDelete(id) {
-  if (!confirm('确定删除该书签吗？')) return;
-  
+  deleteTargetId = id;
+  if (deleteConfirmModal) {
+      deleteConfirmModal.style.display = 'block';
+  } else if (confirm('确定删除该书签吗？')) {
+      // Fallback if modal missing
+      performDelete(id);
+  }
+}
+
+function performDelete(id) {
   fetch(`/api/config/${id}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' }

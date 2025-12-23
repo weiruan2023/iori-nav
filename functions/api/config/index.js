@@ -67,11 +67,11 @@ export async function onRequestGet(context) {
     }
 
     if (keyword) {
-      queryBase += ` AND (s.name LIKE ? OR s.url LIKE ? OR s.catelog_name LIKE ?)`;
+      queryBase += ` AND (name LIKE ? OR url LIKE ? OR catelog_name LIKE ?)`;
       queryBindParams.push(`%${keyword}%`, `%${keyword}%`, `%${keyword}%`);
     }
 
-    const query = `SELECT s.*, s.catelog_name as catelog ${queryBase} ORDER BY s.sort_order ASC, s.create_time DESC LIMIT ? OFFSET ?`;
+    const query = `SELECT * ${queryBase} ORDER BY sort_order ASC, create_time DESC LIMIT ? OFFSET ?`;
     const countQuery = `SELECT COUNT(*) as total ${queryBase}`;
     
     // 添加分页参数
